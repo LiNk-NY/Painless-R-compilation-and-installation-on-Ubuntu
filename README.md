@@ -1,38 +1,38 @@
 # Painless-R-compilation-and-installation-on-Ubuntu
 Compiling R involves installing tons of dependencies, though there are many documents on the internet instructing you how to achieve it, they are kind of outdated. If you are a lazy guy like me and tired of searching for the dependencies of R. This is the right recipe for you. Run the commands at a terminal and you will have all the ingredients ready.
 
-Currently, the code has been tested on 
-```
-Ubuntu 20.04 LTS R version:4.4 devel (2023-08-08 r84908)
-Ubuntu 20.04 LTS. R version:4.3 devel (2023-03-22 r84023)
-Ubuntu 18.04.3 LTS. R version:4.0 devel (2019-12-06 r77536)
-```
 If you like it, please contribute to this project by providing your test results.
 
-# Download the source code
-Find a place you want to put the R source code in. The command below will create a new folder "r-source" under your current folder
-```
-sudo apt install subversion
-svn checkout https://svn.r-project.org/R/trunk/ r-source
-cd r-source
-```
-
 # Install dependencies
+
 ## Option 1: Using package management(Recommended)
 
-The built-in package management utility is a powerful tool to install all dependencies for `R-base`. To install them, you need to enable the source packages in your `/etc/apt/sources.list`. To do that, you can run
+From: https://cran.r-project.org/bin/linux/ubuntu/
+
+```sh
+# update indices
+sudo apt update -qq
+# install two helper packages we need
+sudo apt install --no-install-recommends software-properties-common dirmngr
+# add the signing key (by Michael Rutter) for these repos
+# To verify key, run gpg --show-keys /etc/apt/trusted.gpg.d/cran_ubuntu_key.asc 
+# Fingerprint: E298A3A825C0D65DFD57CBB651716619E084DAB9
+wget -qO- https://cloud.r-project.org/bin/linux/ubuntu/marutter_pubkey.asc | sudo tee -a /etc/apt/trusted.gpg.d/cran_ubuntu_key.asc
+# add the repo from CRAN -- lsb_release adjusts to 'noble' or 'jammy' or ... as needed
+sudo add-apt-repository "deb https://cloud.r-project.org/bin/linux/ubuntu $(lsb_release -cs)-cran40/"
 ```
-sudo perl -p -i -e's/# deb-src/deb-src/' /etc/apt/sources.list
-```
+
 To install the dependencies, run
+
 ```
 sudo apt-get update
 sudo apt build-dep r-base
 ```
-Note that this would not install the `devtools` dependencies. Click [here](#devtools-package-dependencies) to see how to install them
 
 ## Option 2: Manually installing the dependencies
+
 ### Mandatory packages
+
 ```
 sudo apt-get install \
 build-essential fort77 xorg-dev liblzma-dev libblas-dev gfortran \
@@ -42,18 +42,25 @@ libcurl4 libcurl4-openssl-dev \
 default-jre default-jdk openjdk-8-jdk openjdk-8-jre -y
 ```
 
-### Optional packages
-1. Recommended packages: Go to the top-level directory of the R sources, run
-```
-./tools/rsync-recommended
-```
+or use the script from <https://github.com/waldronlab/config>:
 
-2. For building documents:
 ```
-sudo apt-get install texinfo texlive texlive-fonts-extra -y
+git clone git@github.com:waldronlab/config
+cd config
+sudo ./setup.sh
 ```
 
 # R installation
+
+## Using `apt`
+
+```
+# install R itself
+sudo apt install --no-install-recommends r-base
+```
+
+## Compiling from source
+
 ## Export JAVA path
 R requires a Java path to find the included header. This is my personal setting, I am not sure if it will work for all systems.
 ```
@@ -62,6 +69,9 @@ export JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64
 ```
 
 ### Compiling R
+
+### Manually with .configure and make
+
 The code below configures R with all debugging information available and without the recommended packages. 
 ```
 ./configure CFLAGS='-g -O0' CXXFLAGS='-g -O0' --enable-R-shlib --enable-memory-profiling --without-recommended-packages
@@ -73,6 +83,30 @@ make check
 sudo make install
 ```
 
+### With the waldronlab/config script
+
+or use `buildr.sh` script allows for R version e.g., `4-4` or `devel`.
+It will install in `~/src/svn/...`.
+
+```
+cd config
+sudo ./buildr.sh devel
+```
+
+Note that this would not install the `devtools` dependencies. Click [here](#devtools-package-dependencies) to see how to install them
+
+### Optional packages
+1. Recommended packages: Go to the top-level directory of the R sources, run
+```
+## cd ~/src/svn/r-devel/R
+./tools/rsync-recommended
+```
+
+2. For building documents:
+
+```
+sudo apt-get install texinfo texlive texlive-fonts-extra -y
+```
 
 # `devtools` package dependencies
 ```
