@@ -1,7 +1,8 @@
 # Painless-R-compilation-and-installation-on-Ubuntu
 
 Compiling R involves installing tons of dependencies, though there are many documents 
-on the internet instructing you how to achieve it, they are kind of outdated. 
+on the internet instructing you how to achieve it, they are kind of outdated. Some
+dependencies shown here may also be out-of-date.
 
 Note. The Bioconductor Build System (BBS)'s R installation instructions are available at 
 <https://github.com/Bioconductor/BBS/blob/devel/Doc/Prepare-Ubuntu-24.04-HOWTO.md>
